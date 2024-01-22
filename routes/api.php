@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Api\EventController;
+use App\Http\Controllers\Api\{EventController, UserController};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -21,3 +21,6 @@ Route::get('/user', function (Request $request) {
 
 Route::get('/event', [EventController::class, 'getEvent'])->name('event_api');
 Route::get('/events', [EventController::class, 'getAllEvents'])->name('events_api');
+
+Route::get('/user', [UserController::class, 'getUser'])->name('user_api');
+Route::get('/users', [UserController::class, 'getAllUsers'])->name('users_api');
