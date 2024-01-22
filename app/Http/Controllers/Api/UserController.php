@@ -12,7 +12,7 @@ class UserController extends Controller
 {
     public function getAllUsers()
     {
-        return new UserCollection(User::all());
+        return new UserCollection(User::query()->paginate(10));
     }
 
     public function getUser(Request $request)

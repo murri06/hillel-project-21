@@ -14,7 +14,7 @@ class EventController extends Controller
     public function list(): View
     {
         return view('events.list', [
-            'events' => Event::all()
+            'events' => Event::query()->simplePaginate(10),
         ]);
     }
 

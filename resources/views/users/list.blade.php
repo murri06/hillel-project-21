@@ -16,4 +16,5 @@
             </tr>
         @endforeach
     </table>
+    {{$users->links()}}
 </x-layout>

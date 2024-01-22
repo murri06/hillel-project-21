@@ -20,4 +20,5 @@
             </tr>
         @endforeach
     </table>
+    {{$events->links()}}
 </x-layout>

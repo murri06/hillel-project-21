@@ -16,7 +16,7 @@ class UserController extends Controller
     public function list(): View
     {
         return view('users.list', [
-            'users' => User::all()
+            'users' => User::query()->simplePaginate(10),
         ]);
     }
 

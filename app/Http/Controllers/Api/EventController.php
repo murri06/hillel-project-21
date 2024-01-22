@@ -12,7 +12,7 @@ class EventController extends Controller
 {
     public function getAllEvents()
     {
-        return new EventCollection(Event::all());
+        return new EventCollection(Event::query()->paginate(10));
     }
 
     public function getEvent(Request $request)
