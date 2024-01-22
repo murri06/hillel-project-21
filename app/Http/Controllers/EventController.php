@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\EventRequest;
 use App\Models\Event;
 use App\Models\User;
+use App\Services\EventService;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class EventController extends Controller
@@ -14,7 +15,7 @@ class EventController extends Controller
     public function list(): View
     {
         return view('events.list', [
-            'events' => Event::query()->simplePaginate(10),
+            'events' => Event::query()->cursorPaginate(10),
         ]);
     }
 
@@ -34,23 +35,10 @@ class EventController extends Controller
         ]);
     }
 
-    public function addEvent(Request $request): RedirectResponse
+    public function addEvent(EventRequest $request, EventService $eventService): RedirectResponse
     {
-        $valid = $request->validate([
-            'title' => ['required', 'min:3', 'string'],
-            'user_id' => ['required', 'exists:App\Models\User,id'],
-            'notes' => ['required', 'min:3'],
-            'date_start' => ['required', 'date'],
-            'date_end' => ['required', 'date'],
-        ]);
-        $event = Event::create([
-            'title' => $valid['title'],
-            'user_id' => $valid['user_id'],
-            'notes' => $valid['notes'],
-            'dt_start' => $valid['date_start'],
-            'dt_end' => $valid['date_end'],
-        ]);
-        $event->save();
+        $valid = $request->validated();
+        $eventService->createEvent($valid);
         return to_route('events');
     }
 
@@ -62,24 +50,10 @@ class EventController extends Controller
         ]);
     }
 
-    public function editEvent(Request $request, $id): RedirectResponse
+    public function editEvent(EventRequest $request, $id, EventService $eventService): RedirectResponse
     {
-        $valid = $request->validate([
-            'title' => ['required', 'min:3', 'string'],
-            'user_id' => ['required', 'exists:App\Models\User,id'],
-            'notes' => ['required', 'min:3'],
-            'date_start' => ['required', 'date'],
-            'date_end' => ['required', 'date'],
-        ]);
-
-        $event = Event::query()->findOrFail($id);
-        $event->update([
-            'title' => $valid['title'],
-            'user_id' => $valid['user_id'],
-            'notes' => $valid['notes'],
-            'dt_start' => $valid['date_start'],
-            'dt_end' => $valid['date_end'],
-        ]);
+        $valid = $request->validated();
+        $eventService->updateEvent($valid, $id);
         return to_route('events');
     }
 

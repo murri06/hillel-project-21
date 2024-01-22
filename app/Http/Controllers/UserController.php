@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UserUpdateRequest;
 use App\Models\User;
+use App\Services\UserService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class UserController extends Controller
@@ -16,7 +15,7 @@ class UserController extends Controller
     public function list(): View
     {
         return view('users.list', [
-            'users' => User::query()->simplePaginate(10),
+            'users' => User::query()->cursorPaginate(10),
         ]);
     }
 
@@ -29,21 +28,15 @@ class UserController extends Controller
         ]);
     }
 
-    public function addUser(Request $request): RedirectResponse
+    public function addUser(Request $request, UserService $userService): RedirectResponse
     {
         $valid = $request->validate([
             'name' => ['required', 'string', 'min:3'],
             'email' => ['required', 'email', 'unique:App\Models\User,email'],
             'password' => ['required', 'min:6'],
         ]);
-        $user = User::create([
-            'name' => $valid['name'],
-            'email' => $valid['email'],
-            'email_verified_at' => now(),
-            'password' => Hash::make($valid['password']),
-            'remember_token' => Str::random(10),
-        ]);
-        $user->save();
+
+        $userService->createUser($valid);
         return to_route('users_list');
     }
 
@@ -54,20 +47,10 @@ class UserController extends Controller
         ]);
     }
 
-    public function editUser(Request $request, $id): RedirectResponse
+    public function editUser(UserUpdateRequest $request, $id, UserService $userService): RedirectResponse
     {
-        $user = User::query()->findOrFail($id);
-        $valid = $request->validate([
-            'name' => ['required', 'string', 'min:3'],
-            'email' => ['required', 'email', Rule::unique('users')->ignore($user->id)],
-            'password' => ['required', 'min:6'],
-        ]);
-        $user->update([
-            'name' => $valid['name'],
-            'email' => $valid['email'],
-            'email_verified_at' => now(),
-            'password' => Hash::make($valid['password']),
-        ]);
+        $valid = $request->validated();
+        $userService->editUser($valid, $id);
         return to_route('users_list');
     }
 
